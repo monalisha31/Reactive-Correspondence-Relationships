@@ -1,27 +1,22 @@
-
 theory RCR_Locality
   imports Main "HOL-Library.Multiset"
 begin
 
 section \<open>Sect. 2.2: locations, states, conditions, actions\<close>
 
-typedecl loc      \<comment> \<open>abstract locations: nodes, attribute slots, containment (Def. locations)\<close>
-typedecl vl       \<comment> \<open>data universe, including the non-existence marker\<close>
+typedecl loc
+typedecl vl
 
-type_synonym state = "loc \<Rightarrow> vl"   \<comment> \<open>valuation \<nu>\<close>
+type_synonym state = "loc \<Rightarrow> vl"
 
-text \<open>A condition carries its declared read set and its satisfaction function.\<close>
 record cond =
   rds :: "loc set"
   sat :: "state \<Rightarrow> bool"
 
-text \<open>The Sect. 2.2 semantic commitment (Def. reads-foot): satisfaction is a
-  function of the read locations and of nothing else.\<close>
 definition reads_only :: "cond \<Rightarrow> bool" where
   "reads_only I \<longleftrightarrow>
      (\<forall>M M'. (\<forall>l \<in> rds I. M l = M' l) \<longrightarrow> sat I M = sat I M')"
 
-text \<open>Abstract actions with declared write footprint (Def. reads-foot).\<close>
 record act =
   foot :: "loc set"
   step :: "state \<Rightarrow> state"
@@ -30,11 +25,9 @@ definition frame_respecting :: "act \<Rightarrow> bool" where
   "frame_respecting a \<longleftrightarrow>
      (\<forall>M l. l \<notin> foot a \<longrightarrow> step a M l = M l)"
 
-text \<open>Executing a finite batch of actions in order.\<close>
 primrec exec :: "state \<Rightarrow> act list \<Rightarrow> state" where
   "exec M [] = M"
 | "exec M (a # as) = exec (step a M) as"
-
 
 section \<open>Sect. 4: RCR instances -- supp and rds live on the SAME carrier loc\<close>
 
@@ -42,36 +35,28 @@ record rcr =
   supp :: "loc set"
   cinv :: cond
 
-text \<open>Def. support locality: the invariant reads only declared support.\<close>
 definition supp_local :: "rcr \<Rightarrow> bool" where
   "supp_local r \<longleftrightarrow> rds (cinv r) \<subseteq> supp r"
-
 
 section \<open>The RCR system locale: named assumptions = the paper's hypotheses\<close>
 
 locale rcr_system =
-  fixes R :: "rcr set"      \<comment> \<open>the package's RCR instances\<close>
-    and A :: "act set"      \<comment> \<open>the supported actions (user edits and repairs)\<close>
+  fixes R :: "rcr set"
+    and A :: "act set"
   assumes wf_reads: "r \<in> R \<Longrightarrow> reads_only (cinv r)"
-      \<comment> \<open>Sect. 2.2 satisfaction semantics\<close>
+
     and wf_supp:  "r \<in> R \<Longrightarrow> supp_local r"
-      \<comment> \<open>Def. support locality (package well-formedness)\<close>
+
     and wf_frame: "a \<in> A \<Longrightarrow> frame_respecting a"
-      \<comment> \<open>ASSUMED for the abstract semantics; discharged for the
-          concrete action algebra in Sect. 7\<close>
+
 begin
 
-text \<open>Impact set (Sect. 4.2).\<close>
 definition impact :: "act \<Rightarrow> rcr set" where
   "impact a = {r \<in> R. supp r \<inter> foot a \<noteq> {}}"
 
-text \<open>Impact closure of a finite repair trace.\<close>
 definition impact_closure :: "act list \<Rightarrow> rcr set" where
   "impact_closure tr = {r \<in> R. supp r \<inter> \<Union>(foot ` set tr) \<noteq> {}}"
 
-text \<open>Baseline conformance predicate: every instance satisfies its
-  TGG-induced local condition (identified with its invariant at this
-  abstraction level).\<close>
 definition conform :: "state \<Rightarrow> bool" where
   "conform M \<longleftrightarrow> (\<forall>r \<in> R. sat (cinv r) M)"
 
@@ -123,12 +108,6 @@ qed
 
 subsection \<open>THEOREM 2: Baseline local conformance\<close>
 
-text \<open>Def. 7 (locally sound reaction) + the fixpoint condition, at this
-  abstraction level: a repair episode for an edit is a finite executed
-  trace after which every instance in its impact closure satisfies its
-  local condition.  That the concrete sync loop (event queue, reaction
-  selection, guards) produces such traces is exactly the local-soundness
-  + fixpoint obligation of Sect. 5.2, discharged per package (Sect. 7).\<close>
 definition repair_complete :: "state \<Rightarrow> act list \<Rightarrow> bool" where
   "repair_complete M tr \<longleftrightarrow>
      (\<forall>r \<in> impact_closure tr. sat (cinv r) (exec M tr))"
@@ -157,37 +136,20 @@ qed
 
 end
 
-
 section \<open>Sect. 5.3: certificates -- Def. 9 unbundled into named assumptions\<close>
-
-text \<open>Certificates are abstract.  @{text valid} is certificate validity;
-  @{text justifies} relates a certificate to the state it derives;
-  @{text in_lang} is membership of the projected state in the TGG
-  consistency language.  Each component of the paper's Def. 9
-  (certificate-admissible package) becomes a separate, named locale
-  assumption, so the theorem shows exactly which combination yields
-  preservation.
-
-  NOT mechanized (paper / Sect. 7 obligations): that the concrete
-  CD2RDBMS reactions realise @{text ctrans}; that @{text valid} +
-  @{text justifies} characterise derivability in the concrete TGG;
-  confluence/policy for the loop's choice among reactions; termination
-  (executions are finite batches by construction; Sect. 5.4 supplies
-  the argument that the loop produces them).\<close>
 
 locale certified_system = rcr_system +
   fixes valid     :: "'c \<Rightarrow> bool"
-    and ctrans    :: "act \<Rightarrow> 'c \<Rightarrow> 'c"      \<comment> \<open>certificate transformer (Def. 9, part 1)\<close>
+    and ctrans    :: "act \<Rightarrow> 'c \<Rightarrow> 'c"
     and justifies :: "'c \<Rightarrow> state \<Rightarrow> bool"
     and in_lang   :: "state \<Rightarrow> bool"
   assumes ctrans_preserves:
     "\<lbrakk> a \<in> A; valid c; justifies c M \<rbrakk>
        \<Longrightarrow> valid (ctrans a c) \<and> justifies (ctrans a c) (step a M)"
-      \<comment> \<open>creation, deletion (via before-images), and structural repair
-          transform valid certificates into valid certificates\<close>
+
     and cert_sound:
     "\<lbrakk> valid c; justifies c M \<rbrakk> \<Longrightarrow> in_lang M"
-      \<comment> \<open>a valid certificate witnesses TGG-language membership\<close>
+
 begin
 
 primrec cexec :: "'c \<Rightarrow> act list \<Rightarrow> 'c" where
@@ -221,29 +183,23 @@ qed
 
 end
 
-
 section \<open>Concrete certificate model (discharges the transformer obligation)\<close>
 
-text \<open>The abstract theorem above assumes a certificate transformer that
-  preserves validity (\<open>ctrans_preserves\<close>).  Here we exhibit a concrete
+).  Here we exhibit a concrete
   certificate representation and prove that preservation as a lemma, by the
   same four-case analysis the paper gives for Theorem~3.  Only the bridge from
   certificate validity to TGG-language membership remains a cited assumption
   (Hermann et al.).\<close>
 
 datatype rid = RClassTable | RAttrCol | RAttrPivot | RModelScope
-  \<comment> \<open>rule ids matching the package's RCR types (ClassTable, AttrCol, AttrPivot, ModelScope)\<close>
 
-datatype centry = CEntry rid "loc set"   \<comment> \<open>a recorded rule application and its participants\<close>
+datatype centry = CEntry rid "loc set"
 
 type_synonym ccert = "centry set"
 
 definition ccvalid :: "(centry \<Rightarrow> bool) \<Rightarrow> ccert \<Rightarrow> bool" where
   "ccvalid ok c \<longleftrightarrow> (\<forall>e \<in> c. ok e)"
 
-text \<open>The four certificate operations: value repair keeps the certificate,
-  creation inserts an entry, deletion removes entries (via a before-image),
-  and structural replace retires entries and inserts a replacement.\<close>
 datatype cop = Keep | Ins centry | Del "centry set" | Repl "centry set" centry
 
 primrec do_cop :: "cop \<Rightarrow> ccert \<Rightarrow> ccert" where
@@ -252,9 +208,6 @@ primrec do_cop :: "cop \<Rightarrow> ccert \<Rightarrow> ccert" where
 | "do_cop (Del E) c = c - E"
 | "do_cop (Repl E e) c = insert e (c - E)"
 
-text \<open>Each operation preserves validity, given that any newly recorded entry
-  is itself valid.  This is the case analysis the paper previously stated only
-  as a proof sketch.\<close>
 lemma do_cop_preserves:
   assumes "ccvalid ok c"
       and "\<And>e. op = Ins e \<Longrightarrow> ok e"
@@ -262,23 +215,7 @@ lemma do_cop_preserves:
   shows "ccvalid ok (do_cop op c)"
   using assms by (cases op) (auto simp: ccvalid_def)
 
-
 section \<open>Wiring do_cop into a batch-level certificate-preservation result\<close>
-
-text \<open>The abstract theorem certificate_preservation (locale certified_system)
-  is proved under the assumption ctrans_preserves, which bundles two facts about
-  the certificate transformer: preservation of certificate validity, and
-  preservation of a certificate/state justifies relation.  Previously
-  do_cop_preserves stood to one side of that theorem.  Here we connect them:
-  for the concrete do_cop transformer we prove, by the same induction as
-  Theorem 3, that BOTH validity and the justifies relation are preserved along
-  an arbitrary batch of supported actions.  The discharge of the validity step
-  is exactly do_cop_preserves.  Two residual obligations are made explicit as
-  hypotheses, and are precisely the package/testbed obligations discussed in the
-  paper: that the operation chosen for each action only inserts valid certificate
-  entries (ins_ok, repl_ok), and that it preserves justifies (jpres).  The bridge
-  from certificate validity to membership in the concrete TGG language L(T)
-  remains the cited Hermann et al. result.\<close>
 
 primrec cexec0 :: "(act \<Rightarrow> cop) \<Rightarrow> ccert \<Rightarrow> act list \<Rightarrow> ccert" where
   "cexec0 sel c [] = c"
@@ -322,18 +259,7 @@ qed
 
 end
 
-
 section \<open>Sect. 6.4: termination of the repair loop via a multiset ranking\<close>
-
-text \<open>A repair episode is abstracted to its effect on the multiset of ranks of
-  currently-violated witnesses (Def. repair-dependency graph and rank).  By local
-  soundness a productive step repairs one witness, removing one occurrence of its
-  rank @{term k}; by repair-acyclicity every OTHER witness it newly invalidates has
-  a strictly smaller rank.  Such a step is exactly a descent in the
-  Dershowitz--Manna multiset order over the naturals, which is well founded, so no
-  infinite repair episode exists.  That the concrete synchronisation loop's
-  productive steps realise repair_step is the per-package obligation
-  discharged in Sect. 7.\<close>
 
 definition repair_step :: "nat multiset \<Rightarrow> nat multiset \<Rightarrow> bool" where
   "repair_step M' M \<longleftrightarrow>
