@@ -1,25 +1,19 @@
-# Screencast: Ecore → FHAS HUTN → ParticleWare → repaired model
+# Demo recording
 
-**Video:** _<paste the link here once uploaded — e.g. YouTube (unlisted) or a
-release asset>_
+**`PAMoLA_Workspace_demo.mp4`** — screen recording of the prototype running the
+paper's rename scenario in the PAMoLA / ParticleWare web workspace.
 
-Duration: ~N minutes.
+## What it shows
 
-## What the screencast shows
-
-1. **Start from the Ecore metamodel** (`../metamodels/Class.ecore`,
-   `Relational.ecore`) — the source and target metamodels of the CD2RDBMS case.
-2. **Convert to FHAS HUTN** — run the Ecore→FHAS conversion to obtain the deep,
-   clade-structured HUTN representation ParticleWare consumes.
-3. **Load into ParticleWare** together with the RCR package
-   (`../packages/cd2rdbms.particle`).
-4. **Apply the edit** — the `correctness1` rename `Person → Member`
-   (`../models/correctness1/change.xmi`).
-5. **Run the RCR synchronisation** — the reactive loop fires only the impacted
-   witnesses and emits the local repairs.
-6. **End result** — the materialised relational schema, which matches
-   `../models/correctness1/expected1.xmi` (table, pivot, and key-column renamed;
-   `firstName` and `Family` untouched).
-
-> The full testbed source is not included in this artifact; the screencast
-> demonstrates the executable behaviour end to end.
+1. **Load the input model** `../models/rename-demo/cd2rdbms_rename_input.hutn` —
+   Source class model + Target relational schema + one user edit
+   (`Change Person.name → Member`). No correspondences are shipped in the file.
+2. **Load the RCR package** `../packages/scenarios/02_change_rename.particle`.
+3. **Auto-derivation** — with no `Corr` clade present, the runtime synthesises the
+   RCR instances by pairing source/target elements of matching declared types.
+4. **Reactive repair** — the runtime reads the edit and fires the repair reactions,
+   producing three local repairs: the table `Person → Member`, the pivot table
+   `Person_emailAddresses → Member_emailAddresses`, and its key column
+   `personId → memberId`; `firstName` and `Family` stay untouched.
+5. **Result** — the materialised relational schema at a local fixpoint, matching
+   `../models/correctness1/expected1.xmi`.

@@ -1,9 +1,15 @@
-# Reactive Correspondence Relationships — Artifact
+# Reactive Correspondence Relationships — Results
 
-Replication artifact for the paper:
+Supporting **results and material** for the paper:
 
 > **Reactive Correspondence Relationships for Incremental TGG-Style Model
 > Synchronisation** (SEFM 2026)
+
+This repository is **not a turnkey replication package**. It collects the concrete
+results behind the paper's claims: the machine-checked Isabelle/HOL development,
+the modelling inputs and outputs of the class-to-relational case study, the RCR
+packages for each edit scenario, and a screen recording of the prototype running
+the rename scenario in the PAMoLA / ParticleWare workspace.
 
 Reactive Correspondence Relationships (RCRs) turn TGG-style correspondences from
 passive witnesses into local synchronisation controllers: each correspondence
@@ -12,18 +18,12 @@ and reacts to edits by emitting model-level repair actions
 (`Change` / `Add` / `Delete` / `Batch`) that drive the integrated state back to a
 fixpoint without a global rerun.
 
-This artifact contains (a) the **machine-checked Isabelle/HOL theory** behind the
-formal results, and (b) the **modelling inputs** for the TTC 2023
-class-to-relational (CD2RDBMS) case study, including the verified `correctness1`
-rename scenario. A short **screencast** demonstrates the end-to-end pipeline
-(Ecore → FHAS HUTN → ParticleWare → repaired relational model).
-
 ---
 
 ## Contents
 
 ```
-rcr-artifact/
+.
 ├── isabelle/
 │   └── RCR_Locality.thy        Isabelle/HOL development (the proof of record)
 ├── metamodels/
@@ -37,34 +37,53 @@ rcr-artifact/
 │   │   ├── change.xmi          the rename edit (Person → Member)
 │   │   └── expected1.xmi       expected relational schema after repair
 │   └── rename-demo/
-│       └── cd2rdbms_rename_input.hutn   ready-to-run input: Source + Target + the
-│                                        user edit (no Corr — auto-derived at runtime)
+│       └── cd2rdbms_rename_input.hutn   the model loaded in the demo:
+│                                        Source + Target + the user edit
+│                                        (no Corr — correspondences are derived at runtime)
 ├── packages/
 │   └── scenarios/
 │       ├── 01_create_factory.particle       Create  (ModelScopeRCR factory)
 │       ├── 02_change_rename.particle         Change  (rename cascade; the demo package)
 │       ├── 03_delete_attribute.particle      Delete  (before-image retire)
 │       └── 04_batch_single_to_multi.particle Batch   (structural replace)
-├── hutn/
-│   └── README.md               how the FHAS HUTN input is produced (see demo)
 └── demo/
-    └── README.md               screencast: link + what it shows
+    ├── PAMoLA_Workspace_demo.mp4   screen recording of the rename run (see below)
+    └── README.md
 ```
-
-## Quickstart: run the rename in the ParticleWare UI
-
-1. Start the web app and open `http://localhost:8181/workspace.xhtml` → **Particle pipeline**.
-2. Load model `models/rename-demo/cd2rdbms_rename_input.hutn` and package
-   `packages/scenarios/02_change_rename.particle`.
-3. Run. The runtime **auto-derives** the RCR instances from source+target (no `Corr`
-   clade is shipped), reads the single `Change Person.name → Member` event, and emits
-   the three local repairs (table, pivot, and `personId → memberId`), ending in the
-   materialised relational schema. The four packages in `packages/scenarios/`
-   correspond one-to-one to the Create / Change / Delete / Batch listings in the paper.
 
 ---
 
-## 1. Machine-checked theory (`isabelle/RCR_Locality.thy`)
+## 1. Demo recording (`demo/PAMoLA_Workspace_demo.mp4`)
+
+The video records the prototype running the paper's **rename scenario** live in the
+PAMoLA / ParticleWare web workspace. It shows the full incremental-synchronisation
+loop on screen:
+
+1. **Load the input model** — `models/rename-demo/cd2rdbms_rename_input.hutn`, which
+   contains only the **Source** class model, the **Target** relational schema, and a
+   single user **edit event** (`Change Person.name → Member`). No correspondences are
+   shipped in the file.
+2. **Load the RCR package** — `packages/scenarios/02_change_rename.particle`.
+3. **Auto-derivation** — because the model has no `Corr` clade, the runtime synthesises
+   the RCR instances (`ctr_Person`, `apr_Person_emails`, …) by pairing source and target
+   elements of matching declared types.
+4. **Reactive repair** — the runtime reads the edit event and fires the repair reactions,
+   emitting the three local repairs:
+   - the table `Person → Member`,
+   - the pivot table `Person_emailAddresses → Member_emailAddresses`,
+   - and its key column `personId → memberId`,
+
+   while `firstName` and `Family` stay untouched.
+5. **Result** — the materialised relational schema, reached at a local fixpoint without a
+   global rerun. It matches `models/correctness1/expected1.xmi` table-for-table and
+   column-for-column.
+
+The four packages under `packages/scenarios/` correspond one-to-one to the
+Create / Change / Delete / Batch listings in the paper.
+
+---
+
+## 2. Machine-checked theory (`isabelle/RCR_Locality.thy`)
 
 The theory mechanises the abstract spine of the paper's formal results:
 
@@ -90,16 +109,15 @@ What is **mechanised** vs. **validated by runs** vs. **assumed** is documented i
 the theory header and in the paper's mechanisation section (the honesty contract):
 package-specific obligations (frame-respectingness, local soundness, the correct
 certificate-operation choice, the certificate-to-language bridge) are discharged
-*outside* Isabelle and validated by the executable runs below.
+*outside* Isabelle and validated by the executable runs shown in the demo.
 
 ---
 
-## 2. CD2RDBMS case study (modelling inputs)
+## 3. Class-to-relational case study (CD2RDBMS)
 
 The `metamodels/` and `models/correctness1/` files are the TTC 2023 incremental
 class-to-relational benchmark inputs (provenance in `metamodels/README.md`). The
-RCR package in `packages/cd2rdbms.particle` declares the four correspondence
-types used in the paper:
+RCR packages declare the correspondence types used in the paper:
 
 - `ClassTableRCR` — class ↔ table (`table.name = class.name`)
 - `AttrColRCR` — single-valued attribute ↔ column (`col.name = attr.name`)
@@ -107,27 +125,14 @@ types used in the paper:
   is a **context role**, driving `pivot.name` and the `…Id` key column)
 - `ModelScopeRCR` — a factory over the roots that creates witnesses on `Add`
 
-**Verified result (`correctness1`).** Renaming `Person → Member` triggers three
-local repairs to a fixpoint — the table `Person → Member`, the pivot table
-`Person_emailAddresses → Member_emailAddresses`, and its key column
-`personId → memberId` — while `firstName` and `Family` are left untouched. The
-materialised schema matches `models/correctness1/expected1.xmi` table-for-table
-and column-for-column.
-
----
-
-## 3. Demo
-
-`demo/README.md` links a short screencast showing the full pipeline end to end,
-starting from an Ecore metamodel, converting it to the FHAS HUTN representation,
-loading it into ParticleWare, and running the RCR synchronisation to the repaired
-relational model.
+The verified `correctness1` result is the rename shown in the demo: its materialised
+schema matches `models/correctness1/expected1.xmi`.
 
 ---
 
 ## How to cite
 
-If you use this artifact, please cite the SEFM 2026 paper (see the paper for the
+If you use this material, please cite the SEFM 2026 paper (see the paper for the
 full reference).
 
 ## License
