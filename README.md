@@ -5,7 +5,7 @@ Supporting **results and material** for the paper:
 > **Reactive Correspondence Relationships for Incremental TGG-Style Model
 > Synchronisation** (SEFM 2026)
 
-This repository is **not a turnkey replication package**. It collects the concrete
+This repository collects the concrete
 results behind the paper's claims: the machine-checked Isabelle/HOL development,
 the modelling inputs and outputs of the class-to-relational case study, the RCR
 packages for each edit scenario, and a screen recording of the prototype running
