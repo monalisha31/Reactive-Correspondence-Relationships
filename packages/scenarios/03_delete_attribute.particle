@@ -1,0 +1,17 @@
+module Delete_Attribute
+// DELETE scenario (paper Sect. 6, Listing "Delete").
+// Deletion cannot be handled from the post-state alone (the anchor disappears),
+// so the action algebra exposes a before-image (tombstone): deleting an
+// attribute identifies its AttrColRCR, drops the target column, and retires the
+// witness. Certificate mode: retire.
+correspondence AttrColRCR:
+  principal source role
+      ac_attr : Source.Attribute
+  principal target role
+      ac_col : Target.Column
+  invariant NameConsistent:
+      ac_col.name = ac_attr.name
+  reaction SourceAttributeDeleted:
+    trigger delete ac_attr.Attribute
+    effect emit DeleteTargetAndRCR(ac_col)
+    certificate retire self

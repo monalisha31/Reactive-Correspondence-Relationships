@@ -1,0 +1,16 @@
+module Create_Factory
+// CREATE scenario (paper Sect. 6, Listing "Create").
+// A newly created source class has no element-level witness yet, so the
+// ModelScopeRCR factory over the roots creates both the target table and a
+// fresh ClassTableRCR instance. Certificate mode: create.
+correspondence ModelScopeRCR:
+  principal source role
+      src_root : Source.Model
+  principal target role
+      tgt_root : Target.Model
+  reaction SourceClassAdded:
+    trigger add src_root.Class
+    effect emit CreateTableAndRCR(
+      added, tgt_root, Target.Table,
+      ClassTableRCR, ct_class, ct_table)
+    certificate create createdRcr

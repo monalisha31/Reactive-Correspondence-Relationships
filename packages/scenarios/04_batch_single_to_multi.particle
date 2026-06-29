@@ -1,0 +1,26 @@
+module Batch_SingleToMulti
+// BATCH scenario (paper Sect. 6, Listing "Batch").
+// A structural batch changes the representation scheme atomically: when a
+// single-valued attribute becomes multi-valued, one batch retires the
+// AttrColRCR (deleting its column) and creates an AttrPivotRCR with its pivot
+// table and identifier columns. Certificate mode: replace.
+correspondence AttrColRCR:
+  principal source role ac_attr : Source.Attribute
+  principal target role ac_col : Target.Column
+  context role targetRoot : Target.Model
+  invariant NameConsistent: ac_col.name = ac_attr.name
+  reaction SingleToMultiValued:
+    trigger change ac_attr.multiValued
+    when ac_attr.multiValued = true
+    effect batch:
+      emit ConvertAttrColToPivotRCR(ac_attr, ac_col, targetRoot,
+           Target.Table, Target.Column, AttrPivotRCR,
+           ap_attr, ap_pivot, ap_idCol, ap_valueCol)
+    end batch
+    certificate replace self with apr
+correspondence AttrPivotRCR:
+  principal source role ap_attr : Source.Attribute
+  principal target role ap_pivot : Target.Table
+  target role ap_idCol : Target.Column
+  target role ap_valueCol : Target.Column
+  invariant PivotNames: ap_valueCol.name = ap_attr.name

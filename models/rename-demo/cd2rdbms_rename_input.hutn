@@ -1,0 +1,147 @@
+EN {hasName UPR, hasCustodian §,
+  EN {hasName Source,
+    EN {hasName Types,
+      EN {hasName Class},
+      EN {hasName Attribute}
+    },
+    EN {hasName Model,
+      EN {hasName Family, hasDeclaredType Class,
+        AT {hasName name, hasValue Family,
+          DV {hasName nameValue, scalar Family}
+        }
+      },
+      EN {hasName Person, hasDeclaredType Class,
+        AT {hasName name, hasValue Person,
+          DV {hasName nameValue, scalar Person}
+        }
+      },
+      EN {hasName FamilyName, hasDeclaredType Attribute,
+        AT {hasName name, hasValue name,
+          DV {hasName nameValue, scalar name}
+        }
+      },
+      EN {hasName FamilyMembers, hasDeclaredType Attribute,
+        AT {hasName name, hasValue members,
+          DV {hasName nameValue, scalar members}
+        }
+      },
+      EN {hasName PersonFirstName, hasDeclaredType Attribute,
+        AT {hasName name, hasValue firstName,
+          DV {hasName nameValue, scalar firstName}
+        }
+      },
+      EN {hasName PersonClosestFriend, hasDeclaredType Attribute,
+        AT {hasName name, hasValue closestFriend,
+          DV {hasName nameValue, scalar closestFriend}
+        }
+      },
+      EN {hasName PersonEmailAddresses, hasDeclaredType Attribute,
+        AT {hasName name, hasValue emailAddresses,
+          DV {hasName nameValue, scalar emailAddresses}
+        }
+      }
+    }
+  },
+  EN {hasName Target,
+    EN {hasName Types,
+      EN {hasName Table},
+      EN {hasName Column}
+    },
+    EN {hasName Model,
+      EN {hasName FamilyTbl, hasDeclaredType Table,
+        AT {hasName name, hasValue Family,
+          DV {hasName nameValue, scalar Family}
+        },
+        EN {hasName FamilyObjId, hasDeclaredType Column,
+          AT {hasName name, hasValue objectId,
+            DV {hasName nameValue, scalar objectId}
+          }
+        },
+        EN {hasName FamilyNameCol, hasDeclaredType Column,
+          AT {hasName name, hasValue name,
+            DV {hasName nameValue, scalar name}
+          }
+        }
+      },
+      EN {hasName PersonTbl, hasDeclaredType Table,
+        AT {hasName name, hasValue Person,
+          DV {hasName nameValue, scalar Person}
+        },
+        EN {hasName PersonObjId, hasDeclaredType Column,
+          AT {hasName name, hasValue objectId,
+            DV {hasName nameValue, scalar objectId}
+          }
+        },
+        EN {hasName PersonFirstNameCol, hasDeclaredType Column,
+          AT {hasName name, hasValue firstName,
+            DV {hasName nameValue, scalar firstName}
+          }
+        },
+        EN {hasName PersonClosestFriendCol, hasDeclaredType Column,
+          AT {hasName name, hasValue closestFriendId,
+            DV {hasName nameValue, scalar closestFriendId}
+          }
+        }
+      },
+      EN {hasName PersonEmailsPivot, hasDeclaredType Table,
+        AT {hasName name, hasValue Person_emailAddresses,
+          DV {hasName nameValue, scalar Person_emailAddresses}
+        },
+        EN {hasName PersonEmailsIdCol, hasDeclaredType Column,
+          AT {hasName name, hasValue personId,
+            DV {hasName nameValue, scalar personId}
+          }
+        },
+        EN {hasName PersonEmailsValCol, hasDeclaredType Column,
+          AT {hasName name, hasValue emailAddresses,
+            DV {hasName nameValue, scalar emailAddresses}
+          }
+        }
+      },
+      EN {hasName FamilyMembersPivot, hasDeclaredType Table,
+        AT {hasName name, hasValue Family_members,
+          DV {hasName nameValue, scalar Family_members}
+        },
+        EN {hasName FamilyMembersIdCol, hasDeclaredType Column,
+          AT {hasName name, hasValue familyId,
+            DV {hasName nameValue, scalar familyId}
+          }
+        },
+        EN {hasName FamilyMembersValCol, hasDeclaredType Column,
+          AT {hasName name, hasValue membersId,
+            DV {hasName nameValue, scalar membersId}
+          }
+        }
+      }
+    }
+  },
+  EN {hasName Trace,
+    AC {hasName ac_user_ev1, hasTimeStamp 2026-06-29T00:47:43.503399Z, hasTag Change, hasTarget Person.name,
+      DV {hasName tagValue, scalar Change},
+      AT {hasName traceId, hasValue ac_user_ev1,
+        DV {hasName traceIdValue, scalar ac_user_ev1}
+      },
+      AT {hasName feature, hasValue name,
+        DV {hasName featureValue, scalar name}
+      },
+      AT {hasName oldValue, hasValue Person,
+        DV {hasName oldValueValue, scalar Person}
+      },
+      AT {hasName newValue, hasValue Member,
+        DV {hasName newValueValue, scalar Member}
+      },
+      AT {hasName generatedBy, hasValue user,
+        DV {hasName generatedByValue, scalar user}
+      },
+      AT {hasName causedBy, hasValue user,
+        DV {hasName causedByValue, scalar user}
+      },
+      AT {hasName noOp, hasValue false,
+        DV {hasName noOpValue, scalar false}
+      },
+      AT {hasName executed, hasValue false,
+        DV {hasName executedValue, scalar false}
+      }
+    },
+  }
+}

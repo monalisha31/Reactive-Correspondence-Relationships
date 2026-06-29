@@ -32,17 +32,35 @@ rcr-artifact/
 │   ├── Changes.ecore           edit/change metamodel
 │   └── README.md               provenance vs. the ATL Zoo Class2Relational
 ├── models/
-│   └── correctness1/
-│       ├── class.xmi           input class model (before the edit)
-│       ├── change.xmi          the rename edit (Person → Member)
-│       └── expected1.xmi       expected relational schema after repair
+│   ├── correctness1/
+│   │   ├── class.xmi           input class model (before the edit)
+│   │   ├── change.xmi          the rename edit (Person → Member)
+│   │   └── expected1.xmi       expected relational schema after repair
+│   └── rename-demo/
+│       └── cd2rdbms_rename_input.hutn   ready-to-run input: Source + Target + the
+│                                        user edit (no Corr — auto-derived at runtime)
 ├── packages/
-│   └── cd2rdbms.particle       the RCR package (invariants + reactions + certs)
+│   └── scenarios/
+│       ├── 01_create_factory.particle       Create  (ModelScopeRCR factory)
+│       ├── 02_change_rename.particle         Change  (rename cascade; the demo package)
+│       ├── 03_delete_attribute.particle      Delete  (before-image retire)
+│       └── 04_batch_single_to_multi.particle Batch   (structural replace)
 ├── hutn/
 │   └── README.md               how the FHAS HUTN input is produced (see demo)
 └── demo/
     └── README.md               screencast: link + what it shows
 ```
+
+## Quickstart: run the rename in the ParticleWare UI
+
+1. Start the web app and open `http://localhost:8181/workspace.xhtml` → **Particle pipeline**.
+2. Load model `models/rename-demo/cd2rdbms_rename_input.hutn` and package
+   `packages/scenarios/02_change_rename.particle`.
+3. Run. The runtime **auto-derives** the RCR instances from source+target (no `Corr`
+   clade is shipped), reads the single `Change Person.name → Member` event, and emits
+   the three local repairs (table, pivot, and `personId → memberId`), ending in the
+   materialised relational schema. The four packages in `packages/scenarios/`
+   correspond one-to-one to the Create / Change / Delete / Batch listings in the paper.
 
 ---
 

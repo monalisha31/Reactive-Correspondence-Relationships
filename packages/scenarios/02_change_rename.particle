@@ -1,0 +1,38 @@
+module C2RCorrectness1
+correspondence ClassTableRCR:
+  principal source role ct_class : Source.Class
+  principal target role ct_table : Target.Table
+  invariant NameConsistent: ct_table.name = ct_class.name
+  reaction SourceClassRename:
+    trigger change ct_class.name
+    when ct_table.name <> ct_class.name
+    effect emit Change(ct_table.name, ct_class.name)
+correspondence AttrColRCR:
+  principal source role ac_attr : Source.Attribute
+  principal target role ac_col : Target.Column
+  invariant NameConsistent: ac_col.name = ac_attr.name
+  reaction SourceAttrRename:
+    trigger change ac_attr.name
+    when ac_col.name <> ac_attr.name
+    effect emit Change(ac_col.name, ac_attr.name)
+correspondence AttrRefRCR:
+  principal source role ar_attr : Source.Attribute
+  principal target role ar_col : Target.Column
+  invariant FkName: ar_col.name = ar_attr.name + "Id"
+  reaction SourceRefRename:
+    trigger change ar_attr.name
+    when ar_col.name <> ar_attr.name + "Id"
+    effect emit Change(ar_col.name, ar_attr.name + "Id")
+correspondence AttrPivotRCR:
+  principal source role ap_attr : Source.Attribute
+  principal target role ap_pivot : Target.Table
+  context role ap_owner : Source.Class
+  target role ap_idCol : Target.Column
+  invariant PivotName: ap_pivot.name = ap_owner.name + "_" + ap_attr.name
+  invariant IdColName: ap_idCol.name = lc(ap_owner.name) + "Id"
+  reaction OwnerRename:
+    trigger change ap_owner.name
+    effect batch:
+      emit Change(ap_pivot.name, ap_owner.name + "_" + ap_attr.name)
+      emit Change(ap_idCol.name, lc(ap_owner.name) + "Id")
+    end batch
