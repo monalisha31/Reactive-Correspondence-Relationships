@@ -1,0 +1,10 @@
+PLACEHOLDER — choose a license before publishing.
+
+Recommended for a research replication artifact:
+
+  - MIT or Apache-2.0  for the code/theory (permissive, simple), or
+  - CC-BY-4.0          for the data/models and the paper-derived files.
+
+Replace the contents of this file with the full text of your chosen license
+(GitHub's "Add file -> Create new file -> LICENSE" offers a template picker),
+and state the choice in README.md.

@@ -1,0 +1,15 @@
+# Isabelle
+*.thy~
+.isabelle/
+output/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Build / run scratch
+out/
+target/
+*.log
