@@ -128,13 +128,4 @@ RCR packages declare the correspondence types used in the paper:
 The verified `correctness1` result is the rename shown in the demo: its materialised
 schema matches `models/correctness1/expected1.xmi`.
 
----
 
-## How to cite
-
-If you use this material, please cite the SEFM 2026 paper (see the paper for the
-full reference).
-
-## License
-
-See `LICENSE`.
