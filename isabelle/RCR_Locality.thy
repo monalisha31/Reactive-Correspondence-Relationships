@@ -185,11 +185,6 @@ end
 
 section \<open>Concrete certificate model (discharges the transformer obligation)\<close>
 
-).  Here we exhibit a concrete
-  certificate representation and prove that preservation as a lemma, by the
-  same four-case analysis the paper gives for Theorem~3.  Only the bridge from
-  certificate validity to TGG-language membership remains a cited assumption
-  (Hermann et al.).\<close>
 
 datatype rid = RClassTable | RAttrCol | RAttrPivot | RModelScope
 
