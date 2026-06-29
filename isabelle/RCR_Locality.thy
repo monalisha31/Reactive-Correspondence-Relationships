@@ -1,34 +1,3 @@
-(*  Theory:  RCR_Locality
-    Paper:   Reactive Correspondence Relationships for Incremental
-             TGG-Style Model Synchronisation (SEFM 2026)
-
-    Machine-checked spine of the formal development:
-      - frame_locality                    frame locality
-      - baseline_conformance              baseline local conformance
-      - certificate_preservation          abstract certificate preservation
-      - do_cop_preserves                  certificate-operation algebra: keep/insert/
-                                          delete/replace preserve certificate validity
-      - concrete_certificate_preservation lifts do_cop_preserves to a whole batch
-      - repair_terminates                 termination via a multiset ranking
-
-    Abstraction level (the honesty contract of the paper's mechanisation section):
-      states are valuations of abstract locations; actions are abstract
-      frame-respecting transformers.  Frame-respectingness of the concrete action
-      algebra, local soundness of the concrete reactions, and the CD2RDBMS-specific
-      choice of certificate operation are package obligations discharged outside
-      Isabelle, validated by the executable runs.  The finite certificate-operation
-      algebra itself is mechanised here: do_cop_preserves proves that
-      keep/insert/delete/replace preserve certificate validity given valid new or
-      replacement entries, and concrete_certificate_preservation lifts this to a
-      whole batch, preserving certificate validity and the certificate/state
-      "justifies" relation along any list of supported actions under two explicit
-      residual hypotheses -- that each chosen operation inserts only valid entries
-      (ins_ok/repl_ok) and that it preserves justifies (jpres) -- plus the cited
-      Hermann et al. bridge from certificate validity to L(T) membership.
-
-    Builds in Isabelle2025 with no "sorry"/"oops".
-    Imports: Main + HOL-Library.Multiset.
-*)
 
 theory RCR_Locality
   imports Main "HOL-Library.Multiset"
